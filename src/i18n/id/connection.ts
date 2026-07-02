@@ -1,0 +1,98 @@
+export default {
+  // ConnectionForm — header & actions
+  "connection.editConnection": "Edit Koneksi",
+  "connection.newConnection": "Koneksi Baru",
+  "connection.testConnection": "Uji Koneksi",
+  "connection.cancel": "Batal",
+  "connection.saveChanges": "Simpan Perubahan",
+  "connection.createConnection": "Buat Koneksi",
+
+  // ConnectionForm — fields
+  "connection.connectionName": "Nama Koneksi",
+  "connection.connectionNamePlaceholder": "Basis Data Saya",
+  "connection.group": "Grup",
+  "connection.manageGroups": "Kelola grup…",
+  "connection.noGroup": "Tanpa grup",
+  "connection.color": "Warna",
+  "connection.noColor": "Tanpa warna",
+  "connection.databaseType": "Jenis Basis Data",
+  "connection.host": "Host",
+  "connection.hostPlaceholder": "localhost",
+  "connection.port": "Port",
+  "connection.databaseFilePath": "Jalur Berkas Basis Data",
+  "connection.databaseName": "Nama Basis Data",
+  "connection.databaseFilePathPlaceholder": "/path/to/database.db",
+  "connection.databaseNamePlaceholder": "basis_data_saya",
+  "connection.username": "Nama Pengguna",
+  "connection.usernamePlaceholder": "root",
+  "connection.password": "Kata Sandi",
+  "connection.passwordPlaceholder": "••••••••",
+
+  // ConnectionForm — SSL section
+  "connection.sslTls": "SSL / TLS",
+  "connection.sslMode": "Mode SSL",
+  "connection.sslModeServerDefault": "Bawaan server",
+  "connection.sslModeDisable": "Nonaktifkan",
+  "connection.sslModePrefer": "Utamakan",
+  "connection.sslModeRequire": "Wajibkan",
+  "connection.sslModeVerifyCa": "Verifikasi CA",
+  "connection.sslModeVerifyFull": "Verifikasi Penuh",
+  "connection.caCertificate": "Sertifikat CA",
+  "connection.caCertificatePlaceholder": "/path/to/ca.pem",
+  "connection.clientCertificate": "Sertifikat Klien",
+  "connection.clientCertificatePlaceholder": "/path/to/client-cert.pem",
+  "connection.clientKey": "Kunci Klien",
+  "connection.clientKeyPlaceholder": "/path/to/client-key.pem",
+
+  // ConnectionForm — SSH section
+  "connection.sshTunnel": "Terowongan SSH",
+  "connection.sshOn": "aktif",
+  "connection.useSshTunnel": "Gunakan terowongan SSH",
+  "connection.sshHost": "Host SSH",
+  "connection.sshHostPlaceholder": "bastion.example.com",
+  "connection.sshUser": "Pengguna SSH",
+  "connection.sshUserPlaceholder": "ec2-user",
+  "connection.authentication": "Autentikasi",
+  "connection.authPassword": "Kata Sandi",
+  "connection.authPrivateKey": "Kunci Privat",
+  "connection.sshPassword": "Kata Sandi SSH",
+  "connection.privateKeyFile": "Berkas Kunci Privat",
+  "connection.privateKeyFilePlaceholder": "~/.ssh/id_rsa",
+  "connection.passphrase": "Frasa Sandi",
+  "connection.optional": "(opsional)",
+  "connection.passwordUnchangedPlaceholder": "•••••••• (tidak berubah)",
+
+  // ConnectionForm — FilePathInput
+  "connection.browse": "Telusuri",
+
+  // ConnectionForm — results & errors
+  "connection.connectionSuccessful": "Koneksi berhasil!",
+  "connection.connectionFailed": "Koneksi gagal. Silakan periksa pengaturan Anda.",
+  "connection.failedToSave": "Gagal menyimpan koneksi",
+  "connection.testFailed": "Uji koneksi gagal",
+
+  // ConnectionCard
+  "connection.connecting": "Menyambungkan...",
+  "connection.connected": "Tersambung",
+  "connection.connect": "Sambungkan",
+  "connection.edit": "Edit",
+  "connection.delete": "Hapus",
+  "connection.databaseLabel": "Basis Data: {{database}}",
+  "connection.userLabel": "Pengguna: {{user}}",
+  "connection.noFileSelected": "Tidak ada berkas dipilih",
+  "connection.deleteConnection": "Hapus Koneksi",
+  "connection.deleteConfirm":
+    "Apakah Anda yakin ingin menghapus \"{{name}}\"? Tindakan ini tidak dapat dibatalkan.",
+
+  // ConnectionForm — alur pilih-DB-dulu
+  "connection.chooseDatabaseType": "Pilih tipe database",
+  "connection.chooseDatabaseTypeHint": "Pilih engine yang ingin kamu hubungkan.",
+  "connection.changeType": "Ganti",
+  "connection.sectionGeneral": "Umum",
+  "connection.sectionConnection": "Koneksi",
+  "connection.sectionAdvanced": "Lanjutan",
+  "connection.kindRelational": "Relasional",
+  "connection.kindFileBased": "Berbasis file",
+  "connection.kindKeyValue": "Key-value",
+  "connection.kindDocument": "Dokumen",
+} as Record<string, string>;

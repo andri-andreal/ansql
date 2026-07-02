@@ -1,0 +1,69 @@
+[package]
+name = "ansql"
+version = "0.1.0"
+description = "A modern SQL client for Desktop"
+authors = ["ANSQL Team"]
+license = "MIT"
+edition = "2021"
+
+[lib]
+name = "ansql_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.0", features = [] }
+
+[dependencies]
+# Tauri Framework
+tauri = { version = "2.0", features = [] }
+tauri-plugin-shell = "2.0"
+tauri-plugin-dialog = "2.0"
+tauri-plugin-fs = "2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async Runtime
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+
+# SQL Database Drivers
+sqlx = { version = "0.8", features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "mysql",
+    "postgres",
+    "sqlite",
+    "chrono",
+    "json",
+    "uuid",
+    "bigdecimal"
+] }
+
+# Cryptography (for credential vault)
+aes-gcm = "0.10"
+argon2 = "0.5"
+rand = "0.8"
+zeroize = { version = "1.7", features = ["derive"] }
+base64 = "0.21"
+
+# Local Storage (app settings, connections metadata)
+# Pinned to the 0.32 line: keeps libsqlite3-sys in lockstep with sqlx 0.8.6+
+# (both link the same `sqlite3` native lib, so they must agree on its version).
+rusqlite = { version = "0.32", features = ["bundled"] }
+
+# SSH tunneling (pure-Rust, no native OpenSSL/libssh2)
+# Pinned to the stable 0.44 line: russh-keys is still a separate crate here and
+# exposes `decode_secret_key`, and the client::Handler API is well-documented.
+russh = { version = "0.44", default-features = false, features = ["flate2"] }
+russh-keys = "0.44"
+
+# Utilities
+uuid = { version = "1.7", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

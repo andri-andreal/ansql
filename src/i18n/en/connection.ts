@@ -1,0 +1,98 @@
+export default {
+  // ConnectionForm — header & actions
+  "connection.editConnection": "Edit Connection",
+  "connection.newConnection": "New Connection",
+  "connection.testConnection": "Test Connection",
+  "connection.cancel": "Cancel",
+  "connection.saveChanges": "Save Changes",
+  "connection.createConnection": "Create Connection",
+
+  // ConnectionForm — fields
+  "connection.connectionName": "Connection Name",
+  "connection.connectionNamePlaceholder": "My Database",
+  "connection.group": "Group",
+  "connection.manageGroups": "Manage groups…",
+  "connection.noGroup": "No group",
+  "connection.color": "Color",
+  "connection.noColor": "No color",
+  "connection.databaseType": "Database Type",
+  "connection.host": "Host",
+  "connection.hostPlaceholder": "localhost",
+  "connection.port": "Port",
+  "connection.databaseFilePath": "Database File Path",
+  "connection.databaseName": "Database Name",
+  "connection.databaseFilePathPlaceholder": "/path/to/database.db",
+  "connection.databaseNamePlaceholder": "my_database",
+  "connection.username": "Username",
+  "connection.usernamePlaceholder": "root",
+  "connection.password": "Password",
+  "connection.passwordPlaceholder": "••••••••",
+
+  // ConnectionForm — SSL section
+  "connection.sslTls": "SSL / TLS",
+  "connection.sslMode": "SSL Mode",
+  "connection.sslModeServerDefault": "Server default",
+  "connection.sslModeDisable": "Disable",
+  "connection.sslModePrefer": "Prefer",
+  "connection.sslModeRequire": "Require",
+  "connection.sslModeVerifyCa": "Verify CA",
+  "connection.sslModeVerifyFull": "Verify Full",
+  "connection.caCertificate": "CA Certificate",
+  "connection.caCertificatePlaceholder": "/path/to/ca.pem",
+  "connection.clientCertificate": "Client Certificate",
+  "connection.clientCertificatePlaceholder": "/path/to/client-cert.pem",
+  "connection.clientKey": "Client Key",
+  "connection.clientKeyPlaceholder": "/path/to/client-key.pem",
+
+  // ConnectionForm — SSH section
+  "connection.sshTunnel": "SSH Tunnel",
+  "connection.sshOn": "on",
+  "connection.useSshTunnel": "Use SSH tunnel",
+  "connection.sshHost": "SSH Host",
+  "connection.sshHostPlaceholder": "bastion.example.com",
+  "connection.sshUser": "SSH User",
+  "connection.sshUserPlaceholder": "ec2-user",
+  "connection.authentication": "Authentication",
+  "connection.authPassword": "Password",
+  "connection.authPrivateKey": "Private Key",
+  "connection.sshPassword": "SSH Password",
+  "connection.privateKeyFile": "Private Key File",
+  "connection.privateKeyFilePlaceholder": "~/.ssh/id_rsa",
+  "connection.passphrase": "Passphrase",
+  "connection.optional": "(optional)",
+  "connection.passwordUnchangedPlaceholder": "•••••••• (unchanged)",
+
+  // ConnectionForm — FilePathInput
+  "connection.browse": "Browse",
+
+  // ConnectionForm — results & errors
+  "connection.connectionSuccessful": "Connection successful!",
+  "connection.connectionFailed": "Connection failed. Please check your settings.",
+  "connection.failedToSave": "Failed to save connection",
+  "connection.testFailed": "Connection test failed",
+
+  // ConnectionCard
+  "connection.connecting": "Connecting...",
+  "connection.connected": "Connected",
+  "connection.connect": "Connect",
+  "connection.edit": "Edit",
+  "connection.delete": "Delete",
+  "connection.databaseLabel": "Database: {{database}}",
+  "connection.userLabel": "User: {{user}}",
+  "connection.noFileSelected": "No file selected",
+  "connection.deleteConnection": "Delete Connection",
+  "connection.deleteConfirm":
+    "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+
+  // ConnectionForm — driver-first flow
+  "connection.chooseDatabaseType": "Choose a database type",
+  "connection.chooseDatabaseTypeHint": "Pick the engine you want to connect to.",
+  "connection.changeType": "Change",
+  "connection.sectionGeneral": "General",
+  "connection.sectionConnection": "Connection",
+  "connection.sectionAdvanced": "Advanced",
+  "connection.kindRelational": "Relational",
+  "connection.kindFileBased": "File-based",
+  "connection.kindKeyValue": "Key-value",
+  "connection.kindDocument": "Document",
+} as Record<string, string>;

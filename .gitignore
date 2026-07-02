@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Secrets, keys & certificates (never commit)
+*.key
+vault.key
+*.pem
+*.crt
+*.p12
+*.pfx
+*.keystore
+
+# Local databases / credential vault / action journal
+*.sqlite
+*.sqlite3
+*.db
+
+# Claude Code machine-local config (per-developer, leaks home paths)
+.claude/settings.local.json
+.claude/*.local.json
+
+# Tauri
+src-tauri/target/
+
+# Lock files (keep pnpm-lock.yaml)
+package-lock.json
+yarn.lock
+
+# Brainstorm visual companion
+.superpowers/
