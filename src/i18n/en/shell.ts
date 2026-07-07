@@ -15,6 +15,10 @@ export default {
   "shell.preferencesFontSize": "Font size",
   "shell.preferencesWordWrap": "Word wrap",
   "shell.preferencesMinimap": "Minimap",
+  "shell.preferencesQuerySafety": "Query safety",
+  "shell.preferencesPreflight": "Pre-flight dry-run for UPDATE/DELETE",
+  "shell.preferencesPreflightHint":
+    "Preview the affected rows (old → new) and confirm before a raw UPDATE or DELETE runs. If a preview can't be built, the statement runs normally.",
   "shell.preferencesAiAssistant": "AI Assistant",
   "shell.preferencesProvider": "Provider",
   "shell.preferencesModel": "Model",

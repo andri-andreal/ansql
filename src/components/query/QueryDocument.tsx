@@ -37,6 +37,12 @@ import { capResults, togglePinned, renameResult } from "../../lib/queryTabs";
 import { detectSingleTableSelect } from "../../lib/sqlSource";
 import { detectSingleTableDml } from "../../lib/rawDmlSource";
 import { buildRawUndo, buildSnapshotSql, qualifyTable } from "../../lib/rawDmlSnapshot";
+import { buildPreflightPlan, readCountValue, splitPreviewRows } from "../../lib/preflightPreview";
+import {
+  PreflightDialog,
+  type PreflightData,
+  type PreflightIrreversibleReason,
+} from "./PreflightDialog";
 import { useJournalRecorder } from "../../hooks/useActionJournal";
 import type { AskAiAction, AskAiContext } from "../../lib/aiPrompts";
 import type {
@@ -324,6 +330,9 @@ function QueryDocument({
       if (!recordAction || !getColumns || !activeDatabase) return { kind: "none" };
       const src = detectSingleTableDml(sql);
       if (!src) return { kind: "none" };
+      // A DELETE with an ORDER BY/LIMIT tail deletes fewer rows than its WHERE
+      // matches — the snapshot would "undo" rows that were never deleted.
+      if (src.verb === "delete" && src.hasLimitTail) return { kind: "none" };
       try {
         const cols = await getColumns(sessionId, activeDatabase, src.table, src.schema ?? undefined);
         if (cols.length === 0) return { kind: "none" };
@@ -377,6 +386,127 @@ function QueryDocument({
   } | null>(null);
   const tooLargeResolverRef = useRef<((ok: boolean) => void) | null>(null);
 
+  // Pre-flight dry-run: preview the rows a raw UPDATE/DELETE will touch and
+  // gate execution on an explicit Commit (same resolver pattern as above).
+  // The preview SELECT's before-columns double as the Tier-2 undo snapshot,
+  // so a previewed run never snapshots twice.
+  const [preflight, setPreflight] = useState<PreflightData | null>(null);
+  const preflightResolverRef = useRef<((ok: boolean) => void) | null>(null);
+
+  type PreflightCapture =
+    | { kind: "none" }
+    | {
+        kind: "ready";
+        data: PreflightData;
+        undo: { inverse: Statement[]; label: string; rows: number; table: string } | null;
+      };
+
+  const capturePreflight = useCallback(
+    async (sessionId: string, sql: string): Promise<PreflightCapture> => {
+      if (!settings.preflightEnabled || !getColumns || !activeDatabase) return { kind: "none" };
+      const src = detectSingleTableDml(sql);
+      if (!src) return { kind: "none" };
+      try {
+        const cols = await getColumns(sessionId, activeDatabase, src.table, src.schema ?? undefined);
+        if (cols.length === 0) return { kind: "none" };
+        const cap = Math.max(1, snapshotCap);
+        const plan = buildPreflightPlan(
+          connDialect,
+          src,
+          cols.map((c) => c.name),
+          cap,
+        );
+        if (!plan) return { kind: "none" };
+
+        const preview = await executeQuery(sessionId, plan.previewSql, crypto.randomUUID());
+        const truncated = preview.rows.length > cap;
+        const shown = truncated ? preview.rows.slice(0, cap) : preview.rows;
+        const rows = splitPreviewRows(shown, plan.assignments);
+
+        // The preview row count IS the exact headline count unless truncated —
+        // only then is the COUNT(*) round-trip worth it.
+        let totalRows: number | null = preview.rows.length;
+        if (truncated) {
+          try {
+            totalRows = readCountValue(
+              await executeQuery(sessionId, plan.countSql, crypto.randomUUID()),
+            );
+          } catch {
+            totalRows = null;
+          }
+        }
+
+        const mutCols: MutationColumn[] = cols.map((c) => ({
+          name: c.name,
+          data_type: c.data_type,
+          is_primary_key: c.is_primary_key,
+          is_auto_increment: c.is_auto_increment,
+        }));
+        const pkNames = mutCols.filter((c) => c.is_primary_key).map((c) => c.name);
+        const pkAssigned = plan.assignments.some((a) => pkNames.includes(a.column));
+
+        let undo: { inverse: Statement[]; label: string; rows: number; table: string } | null =
+          null;
+        let irreversible: PreflightIrreversibleReason | null = null;
+        if (truncated) {
+          irreversible = "truncated";
+        } else if (pkAssigned) {
+          // The undo would re-target rows by their OLD primary key, which no
+          // longer exists after the statement changes it.
+          irreversible = "pk-assigned";
+        } else if (rows.length === 0) {
+          irreversible = "empty";
+        } else {
+          const inverse = recordAction
+            ? buildRawUndo(connDialect, src, mutCols, rows.map((r) => r.before))
+            : null;
+          if (inverse && inverse.length > 0) {
+            undo = {
+              inverse,
+              label: `${src.verb.toUpperCase()} ${src.table} (${rows.length} row(s))`,
+              rows: rows.length,
+              table: src.table,
+            };
+          } else {
+            irreversible = "no-pk";
+          }
+        }
+
+        return {
+          kind: "ready",
+          undo,
+          data: {
+            verb: src.verb,
+            table: src.schema ? `${src.schema}.${src.table}` : src.table,
+            sql,
+            hasWhere: src.whereSql !== null,
+            totalRows,
+            truncated,
+            cap,
+            rows,
+            columns: mutCols.map((c) => c.name),
+            keyColumns: pkNames,
+            assignments: plan.assignments,
+            irreversible,
+          },
+        };
+      } catch {
+        // Preview failed (parse mismatch, permissions, …) — degrade silently
+        // to the plain execution path; a broken preview must never block a run.
+        return { kind: "none" };
+      }
+    },
+    [
+      settings.preflightEnabled,
+      getColumns,
+      activeDatabase,
+      connDialect,
+      executeQuery,
+      snapshotCap,
+      recordAction,
+    ],
+  );
+
   const runStatement = useCallback(
     async (
       sessionId: string,
@@ -389,27 +519,49 @@ function QueryDocument({
       // Parameterized runs already go through a dialog — skip them here.
       let pendingUndo: { inverse: Statement[]; label: string; rows: number; table: string } | null = null;
       if (!opts?.params) {
-        const capture = await captureRawUndo(sessionId, sql);
-        if (capture.kind === "ready") {
-          pendingUndo = capture;
-        } else if (capture.kind === "too-large") {
-          // Block the run until the user explicitly opts in to running without
-          // an undo entry. A silent "no journal" here is dangerous — the user
-          // would lose data they thought was protected by Time Machine.
+        // Pre-flight dry-run first: preview the affected rows and gate the run
+        // on an explicit Commit. Its snapshot doubles as the Tier-2 undo (and
+        // its "truncated" badge subsumes the too-large gate), so captureRawUndo
+        // is skipped on this path.
+        const pf = await capturePreflight(sessionId, sql);
+        if (pf.kind === "ready") {
           const proceed = await new Promise<boolean>((resolve) => {
-            tooLargeResolverRef.current = resolve;
-            setTooLargeConfirm({
-              table: capture.table,
-              verb: capture.verb,
-              cap: capture.cap,
-              affectedEstimate: capture.affectedEstimate,
-            });
+            preflightResolverRef.current = resolve;
+            setPreflight(pf.data);
           });
           if (!proceed) {
             return makeErrorEntry(
               opts?.label ?? sql,
-              `Cancelled: ${capture.verb} would affect more than ${capture.cap} rows and cannot be undone.`,
+              t("query.preflightCancelled", {
+                verb: pf.data.verb.toUpperCase(),
+                table: pf.data.table,
+              }),
             );
+          }
+          pendingUndo = pf.undo;
+        } else {
+          const capture = await captureRawUndo(sessionId, sql);
+          if (capture.kind === "ready") {
+            pendingUndo = capture;
+          } else if (capture.kind === "too-large") {
+            // Block the run until the user explicitly opts in to running without
+            // an undo entry. A silent "no journal" here is dangerous — the user
+            // would lose data they thought was protected by Time Machine.
+            const proceed = await new Promise<boolean>((resolve) => {
+              tooLargeResolverRef.current = resolve;
+              setTooLargeConfirm({
+                table: capture.table,
+                verb: capture.verb,
+                cap: capture.cap,
+                affectedEstimate: capture.affectedEstimate,
+              });
+            });
+            if (!proceed) {
+              return makeErrorEntry(
+                opts?.label ?? sql,
+                `Cancelled: ${capture.verb} would affect more than ${capture.cap} rows and cannot be undone.`,
+              );
+            }
           }
         }
       }
@@ -444,7 +596,16 @@ function QueryDocument({
         requestIdRef.current = null;
       }
     },
-    [executeQuery, makeErrorEntry, captureRawUndo, recordAction, activeConnectionId, activeDatabase]
+    [
+      executeQuery,
+      makeErrorEntry,
+      captureRawUndo,
+      capturePreflight,
+      recordAction,
+      activeConnectionId,
+      activeDatabase,
+      t,
+    ]
   );
 
   /**
@@ -1270,6 +1431,24 @@ function QueryDocument({
           onClose={() => setShowBuilder(false)}
         />
       )}
+
+      {/* Pre-flight dry-run: before → after preview + Commit/Cancel gate for
+          raw UPDATE/DELETE. Escape / backdrop / X all resolve as Cancel. */}
+      <PreflightDialog
+        data={preflight}
+        onCommit={() => {
+          const resolve = preflightResolverRef.current;
+          preflightResolverRef.current = null;
+          setPreflight(null);
+          resolve?.(true);
+        }}
+        onCancel={() => {
+          const resolve = preflightResolverRef.current;
+          preflightResolverRef.current = null;
+          setPreflight(null);
+          resolve?.(false);
+        }}
+      />
 
       {/* Time Machine: raw DML exceeds the snapshot cap — confirm before
           running without an undo entry. The user MUST opt in explicitly. */}

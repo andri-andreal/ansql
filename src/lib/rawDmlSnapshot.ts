@@ -23,19 +23,23 @@ export function qualifyTable(
 
 /**
  * `SELECT * FROM <table> [WHERE ...]` capturing at most `cap` rows, dialect
- * correct (SQL Server has no LIMIT, so it uses `TOP (n)`).
+ * correct (SQL Server has no LIMIT, so it uses `TOP (n)`). `extraSelect` items
+ * (pre-rendered `(expr) AS "alias"` fragments) are appended after `*` — the
+ * pre-flight preview uses this to project predicted post-UPDATE values.
  */
 export function buildSnapshotSql(
   dialect: Dialect,
   qualified: string,
   whereSql: string | null,
   cap: number,
+  extraSelect?: string[],
 ): string {
+  const projection = extraSelect?.length ? `*, ${extraSelect.join(", ")}` : "*";
   const where = whereSql ? ` WHERE ${whereSql}` : "";
   if (dialect === "sqlserver") {
-    return `SELECT TOP (${cap}) * FROM ${qualified}${where}`;
+    return `SELECT TOP (${cap}) ${projection} FROM ${qualified}${where}`;
   }
-  return `SELECT * FROM ${qualified}${where} LIMIT ${cap}`;
+  return `SELECT ${projection} FROM ${qualified}${where} LIMIT ${cap}`;
 }
 
 /**

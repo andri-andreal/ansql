@@ -141,6 +141,65 @@ function hasTopLevel(sql: string, re: RegExp): boolean {
   return indexOfTopLevel(sql, re) !== -1;
 }
 
+/**
+ * Split `sql` into segments on each top-level (paren-depth 0, outside quoted
+ * spans) match of `re`, using the same scanning rules as
+ * {@link indexOfTopLevel}. The separators themselves are not included in the
+ * segments. `re` must be a sticky (`y`) regex; a zero-length match is treated
+ * as no match to avoid infinite loops.
+ */
+export function splitTopLevel(sql: string, re: RegExp): string[] {
+  const out: string[] = [];
+  let depth = 0;
+  let start = 0;
+  let i = 0;
+  while (i < sql.length) {
+    const ch = sql[i];
+
+    if (ch === "'" || ch === '"' || ch === "`") {
+      const quote = ch;
+      i++;
+      while (i < sql.length) {
+        if (sql[i] === quote) {
+          if (sql[i + 1] === quote) {
+            i += 2;
+            continue;
+          }
+          i++;
+          break;
+        }
+        i++;
+      }
+      continue;
+    }
+
+    if (ch === "(") {
+      depth++;
+      i++;
+      continue;
+    }
+    if (ch === ")") {
+      if (depth > 0) depth--;
+      i++;
+      continue;
+    }
+
+    if (depth === 0) {
+      re.lastIndex = i;
+      const m = re.exec(sql);
+      if (m && m.index === i && m[0].length > 0) {
+        out.push(sql.slice(start, i));
+        i += m[0].length;
+        start = i;
+        continue;
+      }
+    }
+    i++;
+  }
+  out.push(sql.slice(start));
+  return out;
+}
+
 /** Strip one layer of surrounding "..." / `...` / [...] quotes from an ident. */
 export function unquoteIdent(raw: string): string {
   const s = raw.trim();

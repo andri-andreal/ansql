@@ -16,6 +16,13 @@ export interface AppSettings {
    * and more inverse SQL stored on disk.
    */
   timeMachineSnapshotCap: number;
+  /**
+   * Pre-flight dry-run: show a before→after preview and a Commit/Cancel gate
+   * before a raw single-table UPDATE/DELETE from the query editor executes.
+   * Preview failures degrade to running normally (never blocks a run). The
+   * preview row cap reuses `timeMachineSnapshotCap`.
+   */
+  preflightEnabled: boolean;
 }
 
 // Database connection types.

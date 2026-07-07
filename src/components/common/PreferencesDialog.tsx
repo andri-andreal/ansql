@@ -415,6 +415,24 @@ function PreferencesDialog({ onClose }: PreferencesDialogProps) {
             </div>
           </section>
 
+          {/* Query safety */}
+          <section>
+            <h3 className="text-sm font-semibold mb-3">{t("shell.preferencesQuerySafety")}</h3>
+            <div className="space-y-3">
+              <label className="flex items-center justify-between gap-4 cursor-pointer">
+                <span className="text-sm text-muted-foreground">{t("shell.preferencesPreflight")}</span>
+                <input
+                  type="checkbox"
+                  checked={settings.preflightEnabled}
+                  onChange={(e) =>
+                    setSettings({ preflightEnabled: e.target.checked })
+                  }
+                />
+              </label>
+              <p className="text-xs text-muted-foreground">{t("shell.preferencesPreflightHint")}</p>
+            </div>
+          </section>
+
           {/* AI Assistant */}
           <section>
             <h3 className="text-sm font-semibold mb-3">{t("shell.preferencesAiAssistant")}</h3>

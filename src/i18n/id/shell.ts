@@ -15,6 +15,10 @@ export default {
   "shell.preferencesFontSize": "Ukuran font",
   "shell.preferencesWordWrap": "Bungkus baris",
   "shell.preferencesMinimap": "Minimap",
+  "shell.preferencesQuerySafety": "Keamanan query",
+  "shell.preferencesPreflight": "Pratinjau pre-flight untuk UPDATE/DELETE",
+  "shell.preferencesPreflightHint":
+    "Tinjau baris yang terpengaruh (lama → baru) dan konfirmasi sebelum UPDATE atau DELETE mentah dijalankan. Jika pratinjau tidak bisa dibuat, pernyataan berjalan seperti biasa.",
   "shell.preferencesAiAssistant": "Asisten AI",
   "shell.preferencesProvider": "Penyedia",
   "shell.preferencesModel": "Model",

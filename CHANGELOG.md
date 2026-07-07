@@ -1,5 +1,55 @@
 # ANSQL - Changelog
 
+## 2026-07-07
+
+### Sprint 14 — Pre-flight Dry-Run for raw UPDATE/DELETE
+
+A safety gate no other SQL client has: before a raw single-table
+`UPDATE`/`DELETE` typed in the query editor executes, a **Pre-flight** modal
+shows exactly what it will do — an exact headline count ("N rows will change in
+`users`"), a per-row **old → new** diff of every assigned column (full rows for
+DELETE), a danger banner when the statement has **no WHERE clause**, and a Time
+Machine badge telling you up front whether the change will be undoable — then
+waits for an explicit **Run** or **Cancel**. Cancel never touches the database.
+
+- **SELECT-projection preview, zero backend changes.** Instead of executing (or
+  holding a transaction open across the user's decision, which the pooled
+  drivers can't do), the SET expressions are projected into one read-only
+  SELECT: `UPDATE users SET status='inactive' WHERE …` previews as
+  `SELECT *, ('inactive') AS "__ansql_new__status" FROM users WHERE … LIMIT cap+1`.
+  One query returns the current row and the predicted values atomically.
+  (`lib/preflightPreview.ts`, pure + 22 tests; SET-clause parser in
+  `lib/rawDmlSource.ts` `parseSetAssignments`, top-level splitter in
+  `lib/sqlSource.ts` `splitTopLevel`.)
+- **One snapshot serves preview AND undo.** The preview's before-columns feed
+  `buildRawUndo` directly, so a previewed run is journaled in the Time Machine
+  without a second snapshot query; the preview modal also subsumes the Tier-2
+  "too large to undo" confirm (truncation shows as an amber badge instead).
+  Statements that change a primary-key column are now flagged "not reversible"
+  instead of silently recording a broken undo entry.
+- **Graceful degradation guarantee.** Anything the projector can't handle
+  faithfully — aliased/multi-table statements, `UPDATE … LIMIT` tails,
+  unparseable SET clauses, unknown columns, a failed preview query — falls back
+  to today's behavior (plain run + `captureRawUndo`). A broken preview never
+  blocks a run.
+- **Setting**: Preferences → Query safety → *Pre-flight dry-run for
+  UPDATE/DELETE* (`settings.preflightEnabled`, default **on**; the preview row
+  cap reuses `timeMachineSnapshotCap`). Full i18n (en + id).
+- **Known prediction limitations** (labelled in the modal): non-deterministic
+  expressions (`NOW()`, `random()`) evaluate again at run time; MySQL applies
+  SET left-to-right (later assignments see new values) while the preview
+  computes all expressions from the current row; rows can change between
+  preview and commit (same window as the existing Tier-2 snapshot).
+- **Fix (pre-existing Time Machine bug):** `DELETE … WHERE … ORDER BY … LIMIT n`
+  was journaled from a snapshot of *all* WHERE-matching rows, so undo would
+  re-insert rows that were never deleted (failing on PK conflict). The new
+  `hasLimitTail` detector flag now skips journaling (and previewing) these.
+
+> ⚠️ **Runtime-unverified.** All pure logic is unit-tested (suite now 1758) and
+> typecheck/lint are green, but the end-to-end preview→commit→undo cycle was not
+> exercised against a live database in this sprint. Verify against a real server
+> (SQLite is the quick local target) before relying on it.
+
 ## 2026-06-20
 
 ### Sprint 13.1 — Time Machine UX pass

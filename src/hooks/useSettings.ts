@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   editorWordWrap: true,
   editorMinimap: false,
   timeMachineSnapshotCap: 1000,
+  preflightEnabled: true,
 };
 
 /** Read persisted settings from localStorage, merged over the defaults so that

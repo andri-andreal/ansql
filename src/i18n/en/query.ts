@@ -158,6 +158,31 @@ export default {
   "query.exportJson": "JSON",
   "query.exportJsonTooltip": "Export as JSON",
 
+  // PreflightDialog (pre-flight dry-run for raw UPDATE/DELETE)
+  "query.preflightTitleUpdate": "Pre-flight: UPDATE {{table}}",
+  "query.preflightTitleDelete": "Pre-flight: DELETE FROM {{table}}",
+  "query.preflightHeadlineUpdate": "{{count}} row(s) will change in {{table}}",
+  "query.preflightHeadlineDelete": "{{count}} row(s) will be deleted from {{table}}",
+  "query.preflightHeadlineUnknown": "At least {{cap}} row(s) will be affected in {{table}}",
+  "query.preflightNoWhere":
+    "This statement has no WHERE clause — it affects every row in {{table}}.",
+  "query.preflightPrediction":
+    "New values are computed from current data — non-deterministic expressions (e.g. NOW()) may differ when the statement runs.",
+  "query.preflightTruncated": "Showing the first {{cap}} of {{total}} row(s).",
+  "query.preflightReversible": "Reversible — undo will be recorded in Time Machine",
+  "query.preflightIrreversibleNoPk": "Not reversible — the table has no primary key",
+  "query.preflightIrreversibleTruncated":
+    "Not reversible — more rows than the snapshot cap ({{cap}})",
+  "query.preflightIrreversiblePkAssigned":
+    "Not reversible — the statement changes a primary-key column",
+  "query.preflightIrreversibleEmpty": "Nothing to undo — no rows match",
+  "query.preflightNoChange": "(no change)",
+  "query.preflightSqlLabel": "Statement",
+  "query.preflightCommitUpdate": "Run UPDATE",
+  "query.preflightCommitDelete": "Run DELETE",
+  "query.preflightCancel": "Cancel",
+  "query.preflightCancelled": "Cancelled: {{verb}} on {{table}} was not executed.",
+
   // ChartView
   "query.chartBar": "Bar",
   "query.chartLine": "Line",

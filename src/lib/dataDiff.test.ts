@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  cellEquals,
   diffRows,
   buildSyncStatements,
   type DataDiff,
@@ -479,5 +480,26 @@ describe("buildSyncStatements", () => {
     expect(stmts[0].params).toEqual([4, "d", 40]);
     expect(stmts[1].params).toEqual(["B", 22, 2]);
     expect(stmts[2].params).toEqual([3]);
+  });
+});
+
+describe("cellEquals", () => {
+  it("treats null and undefined as equal", () => {
+    expect(cellEquals(null, undefined)).toBe(true);
+    expect(cellEquals(null, null)).toBe(true);
+    expect(cellEquals(null, 0)).toBe(false);
+    expect(cellEquals(undefined, "")).toBe(false);
+  });
+
+  it("uses strict equality for scalars", () => {
+    expect(cellEquals(1, 1)).toBe(true);
+    expect(cellEquals(1, "1")).toBe(false);
+    expect(cellEquals("a", "a")).toBe(true);
+  });
+
+  it("compares objects and arrays structurally", () => {
+    expect(cellEquals({ a: 1 }, { a: 1 })).toBe(true);
+    expect(cellEquals({ a: 1 }, { a: 2 })).toBe(false);
+    expect(cellEquals([1, 2], [1, 2])).toBe(true);
   });
 });

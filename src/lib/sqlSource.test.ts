@@ -1,5 +1,34 @@
 import { describe, it, expect } from "vitest";
-import { detectSingleTableSelect } from "./sqlSource";
+import { detectSingleTableSelect, splitTopLevel } from "./sqlSource";
+
+describe("splitTopLevel", () => {
+  it("splits on top-level commas", () => {
+    expect(splitTopLevel("a = 1, b = 2, c = 3", /,/y)).toEqual(["a = 1", " b = 2", " c = 3"]);
+  });
+
+  it("ignores commas inside string literals", () => {
+    expect(splitTopLevel("note = 'a,b', x = 1", /,/y)).toEqual(["note = 'a,b'", " x = 1"]);
+  });
+
+  it("ignores commas inside parentheses (nested)", () => {
+    expect(splitTopLevel("f = concat(a, ',', nested(b, c)), g = 2", /,/y)).toEqual([
+      "f = concat(a, ',', nested(b, c))",
+      " g = 2",
+    ]);
+  });
+
+  it("ignores commas inside quoted identifiers", () => {
+    expect(splitTopLevel("`a,b` = 1, c = 2", /,/y)).toEqual(["`a,b` = 1", " c = 2"]);
+  });
+
+  it("returns the whole string when there is no match", () => {
+    expect(splitTopLevel("a = 1", /,/y)).toEqual(["a = 1"]);
+  });
+
+  it("keeps empty leading/trailing segments", () => {
+    expect(splitTopLevel(",a,", /,/y)).toEqual(["", "a", ""]);
+  });
+});
 
 describe("detectSingleTableSelect — accepted (editable)", () => {
   it("plain SELECT * from a bare table", () => {

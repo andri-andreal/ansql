@@ -118,7 +118,7 @@ function pickKey(
  * treated as equal so a missing cell matches an explicit NULL. Everything else
  * uses strict equality.
  */
-function cellEquals(a: unknown, b: unknown): boolean {
+export function cellEquals(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a == null && b == null) return true; // null/undefined coalesce
   if (a == null || b == null) return false;

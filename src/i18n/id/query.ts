@@ -161,6 +161,31 @@ export default {
   "query.exportJson": "JSON",
   "query.exportJsonTooltip": "Ekspor sebagai JSON",
 
+  // PreflightDialog (pratinjau pre-flight untuk UPDATE/DELETE mentah)
+  "query.preflightTitleUpdate": "Pre-flight: UPDATE {{table}}",
+  "query.preflightTitleDelete": "Pre-flight: DELETE FROM {{table}}",
+  "query.preflightHeadlineUpdate": "{{count}} baris akan berubah di {{table}}",
+  "query.preflightHeadlineDelete": "{{count}} baris akan dihapus dari {{table}}",
+  "query.preflightHeadlineUnknown": "Setidaknya {{cap}} baris akan terpengaruh di {{table}}",
+  "query.preflightNoWhere":
+    "Pernyataan ini tidak punya klausa WHERE — semua baris di {{table}} akan terpengaruh.",
+  "query.preflightPrediction":
+    "Nilai baru dihitung dari data saat ini — ekspresi non-deterministik (mis. NOW()) bisa berbeda saat pernyataan benar-benar dijalankan.",
+  "query.preflightTruncated": "Menampilkan {{cap}} baris pertama dari {{total}}.",
+  "query.preflightReversible": "Reversibel — undo akan dicatat di Time Machine",
+  "query.preflightIrreversibleNoPk": "Tidak reversibel — tabel tidak punya primary key",
+  "query.preflightIrreversibleTruncated":
+    "Tidak reversibel — jumlah baris melebihi batas snapshot ({{cap}})",
+  "query.preflightIrreversiblePkAssigned":
+    "Tidak reversibel — pernyataan mengubah kolom primary key",
+  "query.preflightIrreversibleEmpty": "Tidak ada yang bisa di-undo — tidak ada baris yang cocok",
+  "query.preflightNoChange": "(tidak berubah)",
+  "query.preflightSqlLabel": "Pernyataan",
+  "query.preflightCommitUpdate": "Jalankan UPDATE",
+  "query.preflightCommitDelete": "Jalankan DELETE",
+  "query.preflightCancel": "Batal",
+  "query.preflightCancelled": "Dibatalkan: {{verb}} pada {{table}} tidak dijalankan.",
+
   // ChartView
   "query.chartBar": "Batang",
   "query.chartLine": "Garis",
