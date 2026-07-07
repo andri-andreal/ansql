@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ANSQL is a Tauri 2 desktop SQL/NoSQL client (React 19 + TypeScript frontend, Rust backend) covering MySQL/MariaDB, PostgreSQL, SQLite, SQL Server, Redis, and MongoDB.
 
-> **`AGENTS.md` is the canonical quick-reference** for the command table, the architecture map, and the coding conventions — read it first. This file adds the big-picture, cross-file architecture and the non-obvious invariants that aren't visible from any single file.
+> **Read `AGENTS.md` first.** It owns the command table, the architecture map, and the coding conventions. This file only adds the big-picture, cross-file architecture and the non-obvious invariants that aren't visible from any single file.
+
+**Scope.** This repository is the **Community** edition (MIT, open source). ANSQL **Pro** (enterprise engines, AI, automation) is a separate closed-source edition built on top — see `EDITIONS.md`. Keep PRs in scope for Community; the CLA in `CLA.md` must be signed before any PR is merged (automated by the CLA Assistant bot — see `CONTRIBUTING.md`).
 
 ## Definition of done
 
@@ -64,4 +66,6 @@ SQL Server, Redis, MongoDB, the vault master-password, and the Time Machine were
 
 - `CHANGELOG.md` — per-sprint narrative, newest first (each sprint = a feature wave; check it before assuming something is missing).
 - `docs/navicat-gap-analysis.md` — the 177-feature gap audit vs Navicat + closeout notes.
+- `docs/2026_*.md` — per-sprint retrospectives (problem/solution/testing deep dives on individual features and fixes).
 - `TODO.md` — historical numbered backlog (all shipped; active work tracked in CHANGELOG).
+- `EDITIONS.md`, `CLA.md`, `CONTRIBUTING.md` — open-core scope, contributor license agreement, and contribution workflow.
